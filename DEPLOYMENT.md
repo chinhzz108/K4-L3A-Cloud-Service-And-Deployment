@@ -18,8 +18,8 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://day12-agent.onrender.com |
-| Platform | Render |
+| Public URL | https://k4-l3a-cloud-service-and-deployment-production.up.railway.app |
+| Platform | Railway |
 | Ngày deploy | 2026-09-28 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
@@ -30,7 +30,7 @@ Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
 |------|--------|---------|
 | `PORT` | ✅ | platform tự gán |
 | `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | Render Redis instance connection string |
+| `REDIS_URL` | ✅ | Railway Redis service connection URL |
 | `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
 | `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
 | `LOG_LEVEL` | ✅ | INFO |
@@ -41,18 +41,18 @@ Thay `<URL>` bằng Public URL ở trên:
 
 ```bash
 # 1. Liveness — mong đợi 200 {"status":"ok"}
-curl -i https://day12-agent.onrender.com/health
+curl -i https://k4-l3a-cloud-service-and-deployment-production.up.railway.app/health
 
 # 2. Readiness — mong đợi 200 {"status":"ready"} (đã nối được Redis)
-curl -i https://day12-agent.onrender.com/ready
+curl -i https://k4-l3a-cloud-service-and-deployment-production.up.railway.app/ready
 
 # 3. Không có API key — mong đợi 401
-curl -i -X POST https://day12-agent.onrender.com/ask \
+curl -i -X POST https://k4-l3a-cloud-service-and-deployment-production.up.railway.app/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"Hello"}'
 
 # 4. Có API key — mong đợi 200 kèm câu trả lời
-curl -i -X POST https://day12-agent.onrender.com/ask \
+curl -i -X POST https://k4-l3a-cloud-service-and-deployment-production.up.railway.app/ask \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $AGENT_API_KEY" \
   -H "X-User-Id: sv-test" \
@@ -60,7 +60,7 @@ curl -i -X POST https://day12-agent.onrender.com/ask \
 
 # 5. Rate limit — gọi 15 lần, những lần cuối phải trả 429
 for i in $(seq 1 15); do
-  curl -s -o /dev/null -w "%{http_code} " -X POST https://day12-agent.onrender.com/ask \
+  curl -s -o /dev/null -w "%{http_code} " -X POST https://k4-l3a-cloud-service-and-deployment-production.up.railway.app/ask \
     -H "Content-Type: application/json" \
     -H "X-API-Key: $AGENT_API_KEY" \
     -H "X-User-Id: sv-test" \
