@@ -18,6 +18,19 @@ HISTORY_MAX_MESSAGES = 20
 HISTORY_TTL_SECONDS = 7 * 24 * 3600
 
 
+class UnavailableRedis:
+    """Redis placeholder used when the configured URL cannot create a client."""
+
+    def __init__(self, reason: Exception) -> None:
+        self.reason = reason
+
+    def ping(self) -> bool:
+        return False
+
+    def __getattr__(self, name: str):
+        raise RuntimeError(f"Redis is unavailable: {self.reason}") from self.reason
+
+
 def get_redis_client(url: str | None = None):
     """CHO SẴN — tạo client Redis từ URL.
 
@@ -30,7 +43,10 @@ def get_redis_client(url: str | None = None):
         import fakeredis
 
         return fakeredis.FakeRedis(decode_responses=True)
-    return redis.from_url(url, decode_responses=True)
+    try:
+        return redis.from_url(url, decode_responses=True)
+    except Exception as exc:
+        return UnavailableRedis(exc)
 
 
 class ConversationStore:
