@@ -77,6 +77,8 @@ def root():
     return {
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
+        "student_id": "2A202602720",
+        "student_name": "Trần Trọng Chinh",
         "status": "running",
         "docs": "/docs",
         "health": "/health",
