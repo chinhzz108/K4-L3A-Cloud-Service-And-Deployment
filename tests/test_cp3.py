@@ -11,6 +11,23 @@ from fastapi import HTTPException
 
 
 class TestAuthentication:
+    def test_thieu_cau_hinh_api_key_thi_503(self, monkeypatch):
+        from app import auth
+        from pydantic import ValidationError
+
+        error = ValidationError.from_exception_data(
+            "Settings",
+            [{"type": "missing", "loc": ("agent_api_key",), "input": {}}],
+        )
+
+        def missing_settings():
+            raise error
+
+        monkeypatch.setattr(auth, "get_settings", missing_settings)
+        with pytest.raises(HTTPException) as err:
+            auth.verify_api_key()
+        assert err.value.status_code == 503
+
     def test_khong_co_key_thi_401(self, client):
         response = client.post("/ask", json={"question": "Xin chào"})
         assert response.status_code == 401

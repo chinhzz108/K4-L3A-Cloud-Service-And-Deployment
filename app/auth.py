@@ -9,6 +9,7 @@ from __future__ import annotations
 import secrets
 
 from fastapi import Header, HTTPException, status
+from pydantic import ValidationError
 
 from .config import get_settings
 
@@ -32,7 +33,13 @@ def verify_api_key(
       4. Hợp lệ → trả về ``x_user_id`` nếu client có gửi, ngược lại trả
          ``ANONYMOUS_USER``. user_id này là đơn vị để rate limit và tính chi phí.
     """
-    expected_key = get_settings().agent_api_key
+    try:
+        expected_key = get_settings().agent_api_key
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="service is not configured",
+        ) from exc
     if not x_api_key or not secrets.compare_digest(x_api_key, expected_key):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

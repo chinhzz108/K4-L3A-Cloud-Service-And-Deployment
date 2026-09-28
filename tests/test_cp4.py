@@ -83,6 +83,15 @@ class TestConversationStore:
         client.set("k", "v")
         assert client.get("k") == "v"
 
+    def test_thieu_cau_hinh_tra_redis_khong_kha_dung(self, monkeypatch):
+        from app import store
+
+        def missing_settings():
+            raise RuntimeError("missing required settings")
+
+        monkeypatch.setattr(store, "get_settings", missing_settings)
+        assert store.ConversationStore(store.get_redis_client()).ping() is False
+
 
 class TestStateless:
     def test_state_khong_nam_trong_process(self, fake_redis):
