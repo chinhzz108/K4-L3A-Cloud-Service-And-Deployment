@@ -72,7 +72,18 @@ class AskRequest(BaseModel):
 
 # ─────────────────────────────────────────────────────────────
 # Health & readiness
-# ─────────────────────────────────────────────────────────────
+@app.get("/")
+def root():
+    return {
+        "service": SERVICE_NAME,
+        "version": SERVICE_VERSION,
+        "status": "running",
+        "docs": "/docs",
+        "health": "/health",
+        "ready": "/ready",
+    }
+
+
 @app.get("/health")
 def health():
     """Liveness probe — process còn sống không?
